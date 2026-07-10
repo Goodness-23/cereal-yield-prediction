@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sign In — Cereal Yield Prediction System</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Source+Sans+3:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body class="auth-body">
+
+<div class="auth-wrap">
+    <div class="auth-mark">
+        <div class="auth-mark-glyph">🌾</div>
+    </div>
+
+    <div class="auth-card">
+        <div class="eyebrow" style="text-align:center;">Machine Learning · Agricultural Forecasting</div>
+        <h1 class="auth-title">Cereal Yield<br>Prediction System</h1>
+        <p class="auth-sub">Enter the access code to reach the dashboard.</p>
+
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="password">Access code</label>
+                <input type="password" id="password" placeholder="Enter access code" required autofocus>
+            </div>
+            <button type="submit" id="loginBtn"><span>Enter</span></button>
+        </form>
+
+        <div id="loginError" class="error hidden"></div>
+    </div>
+
+    <p class="auth-footnote">Random Forest / XGBoost Regressor · FAOSTAT data, 1990–2013</p>
+</div>
+
+<script>
+document.getElementById('loginForm').addEventListener('submit', function (e) {
+    e.preventDefault();
+    const btn = document.getElementById('loginBtn');
+    const errBox = document.getElementById('loginError');
+    errBox.classList.add('hidden');
+    btn.disabled = true;
+    btn.querySelector('span').textContent = 'Checking…';
+
+    fetch('/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password: document.getElementById('password').value })
+    })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                window.location.href = '/dashboard.html';
+            } else {
+                errBox.textContent = data.error || 'Incorrect access code.';
+                errBox.classList.remove('hidden');
+                btn.disabled = false;
+                btn.querySelector('span').textContent = 'Enter';
+            }
+        })
+        .catch(() => {
+            errBox.textContent = 'Could not reach the server.';
+            errBox.classList.remove('hidden');
+            btn.disabled = false;
+            btn.querySelector('span').textContent = 'Enter';
+        });
+});
+</script>
+</body>
+</html>
